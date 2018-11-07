@@ -35,7 +35,7 @@ public class VoteService {
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
         Vote vote = modelMapper.map(voteInput, Vote.class);
         vote = voteRepository.save(vote);
-        return new GenericOutput("OK");
+        return new GenericOutput("ta certo");
     }
 
 
