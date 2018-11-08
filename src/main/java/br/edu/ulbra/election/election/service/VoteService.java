@@ -35,12 +35,13 @@ public class VoteService {
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
         Vote vote = modelMapper.map(voteInput, Vote.class);
         vote = voteRepository.save(vote);
-        return new GenericOutput("ta certo");
+        return new GenericOutput("ok");
     }
 
 
 
     public void validateInput(VoteInput voteInput) {
+        List<Vote> votes;
         if (voteInput.getCandidateId() == null) {
             throw new GenericOutputException("Invalid CandidateId");
         }
@@ -51,6 +52,12 @@ public class VoteService {
 
         if (voteInput.getVoterId() == null) {
             throw new GenericOutputException("Invalid Voter");
+        }
+
+        votes = voteRepository.findByVoterIdAndElectionId(voteInput.getVoterId(), voteInput.getElectionId());
+
+        if(votes.size() > 0){
+            throw new GenericOutputException("This voter already voted in this election");
         }
     }
 
