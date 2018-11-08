@@ -32,12 +32,14 @@ public class ElectionService {
     }
 
     public List<ElectionOutput> getAll() {
-        Type electionOutputListType = new TypeToken<List<ElectionOutput>>(){}.getType();
+        Type electionOutputListType = new TypeToken<List<ElectionOutput>>() {
+        }.getType();
         return modelMapper.map(electionRepository.findAll(), electionOutputListType);
     }
 
     public List<ElectionOutput> getByYear(Integer year) {
-        Type electionOutputListType = new TypeToken<List<ElectionOutput>>(){}.getType();
+        Type electionOutputListType = new TypeToken<List<ElectionOutput>>() {
+        }.getType();
         return modelMapper.map(electionRepository.findByYear(year), electionOutputListType);
     }
 
@@ -96,14 +98,37 @@ public class ElectionService {
     }
 
     public void validateInput(ElectionInput electionInput, boolean isUpdate) {
+        String[] statesAcronym = {"AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"};
+
         if (electionInput.getYear() == null) {
             throw new GenericOutputException("Invalid year");
         }
+        if ((electionInput.getYear() < 2000) || (electionInput.getYear() >= 2200)) {
+            throw new GenericOutputException("Invalid year. The year must be greater or equal to 2000 and less than 2200");
+        }
+
         if (StringUtils.isBlank(electionInput.getStateCode())) {
             throw new GenericOutputException("Invalid state code");
         }
+        Boolean flag = false;
+        for (String code : statesAcronym) {
+            if (electionInput.getStateCode().equals(code)) {
+                flag = true;
+                break;
+            }
+            if (electionInput.getStateCode().compareTo(code) < 0) {
+                break;
+            }
+        }
+        if (!flag) {
+            throw new GenericOutputException("Invalid state code");
+        }
+
         if (StringUtils.isBlank(electionInput.getDescription())) {
             throw new GenericOutputException("Invalid description");
+        }
+        if (electionInput.getDescription().length() < 5) {
+            throw new GenericOutputException("Invalid description. The description must be at least 5 characters");
         }
     }
 
