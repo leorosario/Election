@@ -16,7 +16,7 @@ public class Vote {
     private Long voterId;
 
     @Column(nullable = false)
-    private Long candidateId;
+    private Long candidateNumber;
 
     public Long getId() {
         return id;
@@ -42,12 +42,12 @@ public class Vote {
         this.voterId = voterId;
     }
 
-    public Long getCandidateId() {
-        return candidateId;
+    public Long getcandidateNumber() {
+        return candidateNumber;
     }
 
-    public void setCandidateId(Long candidateId) {
-        this.candidateId = candidateId;
+    public void setcandidateNumber(Long candidateNumber) {
+        this.candidateNumber = candidateNumber;
     }
 
 }

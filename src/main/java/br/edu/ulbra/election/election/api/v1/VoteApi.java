@@ -23,9 +23,9 @@ public class VoteApi {
         this.voteService = voteService;
     }
 
-    @PutMapping("/{electionId}")
+    @PutMapping("/")
     public GenericOutput electionVote(@RequestBody VoteInput voteInput){
-        return voteService.create(voteInput);
+        return voteService.electionVote(voteInput);
     }
 
     @PutMapping("/multiple")
