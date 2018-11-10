@@ -10,10 +10,10 @@ databaseChangeLog:
         relativeToChangelogFile: true
   - changeSet:
       id: CREATE_TABLE_VOTE
-      author: leonardo.rosario
+      author: tales.viegas
       sqlFile:
-        path: "scripts/001.CREATE_TABLE_VOTE.sql"
+        path: "scripts/002.CREATE_TABLE_VOTE.sql"
         relativeToChangelogFile: true
       rollbackFile:
-        path: "scripts/001.CREATE_TABLE_VOTE.rollback.sql"
+        path: "scripts/002.CREATE_TABLE_VOTE.rollback.sql"
         relativeToChangelogFile: true

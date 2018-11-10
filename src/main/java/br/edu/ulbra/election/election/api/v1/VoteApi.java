@@ -19,7 +19,7 @@ public class VoteApi {
     private final VoteService voteService;
 
     @Autowired
-    public VoteApi(VoteService voteService) {
+    public VoteApi(VoteService voteService){
         this.voteService = voteService;
     }
 
@@ -30,6 +30,6 @@ public class VoteApi {
 
     @PutMapping("/multiple")
     public GenericOutput multipleElectionVote(@RequestBody List<VoteInput> voteInputList){
-        return new GenericOutput("OK");
+        return voteService.multiple(voteInputList);
     }
 }
