@@ -1,14 +1,17 @@
 package br.edu.ulbra.election.election.service;
 
+import br.edu.ulbra.election.election.client.VoterClientService;
 import br.edu.ulbra.election.election.exception.GenericOutputException;
 import br.edu.ulbra.election.election.input.v1.VoteInput;
 import br.edu.ulbra.election.election.model.Election;
 import br.edu.ulbra.election.election.model.Vote;
 import br.edu.ulbra.election.election.output.v1.GenericOutput;
+import br.edu.ulbra.election.election.output.v1.VoterOutput;
 import br.edu.ulbra.election.election.repository.ElectionRepository;
 import br.edu.ulbra.election.election.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import feign.FeignException;
 
 import java.util.List;
 
@@ -16,13 +19,15 @@ import java.util.List;
 public class VoteService {
 
     private final VoteRepository voteRepository;
-
+    private final VoterClientService voterClientService;
     private final ElectionRepository electionRepository;
 
     @Autowired
-    public VoteService(VoteRepository voteRepository, ElectionRepository electionRepository){
+    public VoteService(VoteRepository voteRepository, ElectionRepository electionRepository, VoterClientService voterClientService){
         this.voteRepository = voteRepository;
         this.electionRepository = electionRepository;
+        this.voterClientService = voterClientService;
+
     }
 
     public GenericOutput electionVote(VoteInput voteInput){
@@ -61,6 +66,22 @@ public class VoteService {
         if (voteInput.getVoterId() == null){
             throw new GenericOutputException("Invalid Voter");
         }
+
+        try{
+            VoterOutput voterOutput = voterClientService.getById(voteInput.getVoterId());
+            if (voterOutput == null){
+                throw new GenericOutputException("Invalid Voter");
+            }
+        } catch (FeignException e){
+            if (e.status() == 500) {
+                throw new GenericOutputException("Invalid Voter");
+            }
+        }
+        List<Vote> votes = voteRepository.findByVoterIdAndElection_Id(voteInput.getVoterId(), voteInput.getElectionId());
+        if(votes.size() > 0){
+            throw new GenericOutputException("This voter already voted in this election.");
+        }
+
         // TODO: Validate voter
 
         return election;

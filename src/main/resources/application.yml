@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: 8084
 
 spring:
   datasource:
@@ -33,3 +33,5 @@ info:
     name: Election
     creator-name: Tales Bitelo Viegas
     creator-email: tales.viegas@ulbra.br
+url:
+  voter-service: 'http://localhost:8081'
