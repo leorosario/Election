@@ -12,6 +12,8 @@ public class CandidateOutput {
     private String name;
     @ApiModelProperty(example = "77654", notes = "Candidate Election Number")
     private Long numberElection;
+    @ApiModelProperty(notes = "Candidate Election Data")
+    private ElectionOutput electionOutput;
     @ApiModelProperty(notes = "Candidate Party Data")
     private PartyOutput partyOutput;
 
@@ -29,6 +31,14 @@ public class CandidateOutput {
 
     public void setNumberElection(Long numberElection) {
         this.numberElection = numberElection;
+    }
+
+    public ElectionOutput getElectionOutput() {
+        return electionOutput;
+    }
+
+    public void setElectionOutput(ElectionOutput electionOutput) {
+        this.electionOutput = electionOutput;
     }
 
     public PartyOutput getPartyOutput() {

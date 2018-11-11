@@ -1,14 +1,17 @@
 package br.edu.ulbra.election.election.service;
 
+import br.edu.ulbra.election.election.client.CandidateClientService;
 import br.edu.ulbra.election.election.enums.StateCodes;
 import br.edu.ulbra.election.election.exception.GenericOutputException;
 import br.edu.ulbra.election.election.input.v1.ElectionInput;
 import br.edu.ulbra.election.election.model.Election;
 import br.edu.ulbra.election.election.model.Vote;
+import br.edu.ulbra.election.election.output.v1.CandidateOutput;
 import br.edu.ulbra.election.election.output.v1.ElectionOutput;
 import br.edu.ulbra.election.election.output.v1.GenericOutput;
 import br.edu.ulbra.election.election.repository.ElectionRepository;
 import br.edu.ulbra.election.election.repository.VoteRepository;
+import feign.FeignException;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -24,12 +27,14 @@ public class ElectionService {
     private final ElectionRepository electionRepository;
     private final VoteRepository voteRepository;
     private final ModelMapper modelMapper;
+    private final CandidateClientService candidateClientService;
     
     @Autowired
-    public ElectionService(ElectionRepository electionRepository, VoteRepository voteRepository, ModelMapper modelMapper){
+    public ElectionService(ElectionRepository electionRepository, VoteRepository voteRepository, ModelMapper modelMapper, CandidateClientService candidateClientService){
         this.electionRepository = electionRepository;
         this.voteRepository = voteRepository;
         this.modelMapper = modelMapper;
+        this.candidateClientService = candidateClientService;
     }
 
 
@@ -68,7 +73,9 @@ public class ElectionService {
         }
         validateInput(electionInput);
         validateDuplicate(electionInput, electionId);
+        checkCandidates(electionId);
         checkVotes(electionId);
+
 
         Election election = electionRepository.findById(electionId).orElse(null);
         if (election == null){
@@ -92,6 +99,7 @@ public class ElectionService {
             throw new GenericOutputException(MESSAGE_ELECTION_NOT_FOUND);
         }
         checkVotes(electionId);
+        checkCandidates(electionId);
         electionRepository.delete(election);
 
         return new GenericOutput("Election deleted");
@@ -101,6 +109,23 @@ public class ElectionService {
         List<Vote> votes = voteRepository.findByElection_Id(id);
         if(votes.size() > 0){
             throw new GenericOutputException("this election already has votes");
+        }
+    }
+
+    private void checkCandidates(Long id){
+        try {
+            List<CandidateOutput> candidates = candidateClientService.getAll();
+            CandidateOutput candidate;
+            for(int i = 0; i < candidates.size(); i++){
+                candidate = candidates.get(i);
+                if(candidate.getElectionOutput().getId() == id){
+                    throw new GenericOutputException("This election already has related candidates");
+                }
+            }
+        } catch (FeignException e){
+            if (e.status() == 500) {
+                throw new GenericOutputException("Invalid candidate");
+            }
         }
     }
 
