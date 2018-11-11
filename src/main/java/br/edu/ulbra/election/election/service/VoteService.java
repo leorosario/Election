@@ -44,11 +44,11 @@ public class VoteService {
         if (voteInput.getCandidateNumber() == null){
             vote.setBlankVote(true);
         } else {
-            vote.setBlankVote(checkNumberCandidates(voteInput.getCandidateNumber()));
+            vote.setBlankVote(false);
         }
 
         // TODO: Validate null candidate
-        vote.setNullVote(false);
+        vote.setNullVote(checkNumberCandidates(voteInput.getCandidateNumber()));
 
         voteRepository.save(vote);
 
