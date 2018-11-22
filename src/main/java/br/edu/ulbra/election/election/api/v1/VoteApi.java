@@ -4,11 +4,7 @@ import br.edu.ulbra.election.election.input.v1.VoteInput;
 import br.edu.ulbra.election.election.output.v1.GenericOutput;
 import br.edu.ulbra.election.election.service.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,17 +15,27 @@ public class VoteApi {
     private final VoteService voteService;
 
     @Autowired
-    public VoteApi(VoteService voteService){
+    public VoteApi(VoteService voteService) {
         this.voteService = voteService;
     }
 
     @PutMapping("/")
-    public GenericOutput electionVote(@RequestBody VoteInput voteInput){
+    public GenericOutput electionVote(@RequestBody VoteInput voteInput) {
         return voteService.electionVote(voteInput);
     }
 
     @PutMapping("/multiple")
-    public GenericOutput multipleElectionVote(@RequestBody List<VoteInput> voteInputList){
+    public GenericOutput multipleElectionVote(@RequestBody List<VoteInput> voteInputList) {
         return voteService.multiple(voteInputList);
+    }
+
+    @GetMapping("/number/{electionId}")
+    public Integer getVoteNumberByElectionId(@PathVariable Long electionId) {
+        return voteService.getVoteNumberByElectionId(electionId);
+    }
+
+    @GetMapping("/{voterId}")
+    public Boolean getVoteByVoterId(@PathVariable Long voterId) {
+        return voteService.getVoteByVoterId(voterId);
     }
 }

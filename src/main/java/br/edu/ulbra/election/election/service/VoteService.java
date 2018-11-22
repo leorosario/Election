@@ -26,7 +26,7 @@ public class VoteService {
     private final CandidateClientService candidateClientService;
 
     @Autowired
-    public VoteService(VoteRepository voteRepository, ElectionRepository electionRepository, VoterClientService voterClientService, CandidateClientService candidateClientService){
+    public VoteService(VoteRepository voteRepository, ElectionRepository electionRepository, VoterClientService voterClientService, CandidateClientService candidateClientService) {
         this.voteRepository = voteRepository;
         this.electionRepository = electionRepository;
         this.voterClientService = voterClientService;
@@ -34,14 +34,14 @@ public class VoteService {
 
     }
 
-    public GenericOutput electionVote(VoteInput voteInput){
+    public GenericOutput electionVote(VoteInput voteInput) {
 
         Election election = validateInput(voteInput.getElectionId(), voteInput);
         Vote vote = new Vote();
         vote.setElection(election);
         vote.setVoterId(voteInput.getVoterId());
 
-        if (voteInput.getCandidateNumber() == null){
+        if (voteInput.getCandidateNumber() == null) {
             vote.setBlankVote(true);
         } else {
             vote.setBlankVote(false);
@@ -55,52 +55,66 @@ public class VoteService {
         return new GenericOutput("OK");
     }
 
-    public GenericOutput multiple(List<VoteInput> voteInputList){
-        for (VoteInput voteInput : voteInputList){
+    public GenericOutput multiple(List<VoteInput> voteInputList) {
+        for (VoteInput voteInput : voteInputList) {
             this.electionVote(voteInput);
         }
         return new GenericOutput("OK");
     }
 
-    private boolean checkNumberCandidates(Long number){
+    public Integer getVoteNumberByElectionId(Long id) {
+        List<Vote> votes = voteRepository.findByElection_Id(id);
+        return votes.size();
+    }
+
+    public Boolean getVoteByVoterId(Long id) {
+        Vote vote = voteRepository.findByVoterId(id);
+        if (vote == null) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkNumberCandidates(Long number) {
         try {
             List<CandidateOutput> candidates = candidateClientService.getAll();
             CandidateOutput candidate;
-            for(int i = 0; i < candidates.size(); i++){
+            for (int i = 0; i < candidates.size(); i++) {
                 candidate = candidates.get(i);
-                if(candidate.getNumberElection() == number){
+                if (candidate.getNumberElection() == number) {
                     return false;
                 }
             }
-        } catch (FeignException e){
+        } catch (FeignException e) {
             if (e.status() == 500) {
                 throw new GenericOutputException("Invalid candidate");
             }
         }
-        return(true);
+        return (true);
     }
 
-    public Election validateInput(Long electionId, VoteInput voteInput){
+    public Election validateInput(Long electionId, VoteInput voteInput) {
         Election election = electionRepository.findById(electionId).orElse(null);
-        if (election == null){
+        if (election == null) {
             throw new GenericOutputException("Invalid Election");
         }
-        if (voteInput.getVoterId() == null){
+        if (voteInput.getVoterId() == null) {
             throw new GenericOutputException("Invalid Voter");
         }
 
-        try{
+        try {
             VoterOutput voterOutput = voterClientService.getById(voteInput.getVoterId());
-            if (voterOutput == null){
+            if (voterOutput == null) {
                 throw new GenericOutputException("Invalid Voter");
             }
-        } catch (FeignException e){
+        } catch (FeignException e) {
             if (e.status() == 500) {
                 throw new GenericOutputException("Invalid Voter");
             }
         }
+
         List<Vote> votes = voteRepository.findByVoterIdAndElection_Id(voteInput.getVoterId(), voteInput.getElectionId());
-        if(votes.size() > 0){
+        if (votes.size() > 0) {
             throw new GenericOutputException("This voter already voted in this election.");
         }
 

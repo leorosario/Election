@@ -7,4 +7,5 @@ import java.util.List;
 public interface VoteRepository extends CrudRepository<Vote, Long> {
     List<Vote> findByVoterIdAndElection_Id(Long voterId, Long ElectionId);
     List<Vote> findByElection_Id(Long ElectionId);
+    Vote findByVoterId(Long VoterId);
 }
