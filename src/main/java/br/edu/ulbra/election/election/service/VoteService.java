@@ -40,6 +40,7 @@ public class VoteService {
         Vote vote = new Vote();
         vote.setElection(election);
         vote.setVoterId(voteInput.getVoterId());
+        Long candidateId;
 
         if (voteInput.getCandidateNumber() == null) {
             vote.setBlankVote(true);
@@ -48,7 +49,13 @@ public class VoteService {
         }
 
         // TODO: Validate null candidate
-        vote.setNullVote(checkNumberCandidates(voteInput.getCandidateNumber()));
+        candidateId = checkNumberCandidates(voteInput.getCandidateNumber());
+        if(candidateId == null){
+            vote.setNullVote(true);
+        }else{
+            vote.setCandidateId(candidateId);
+            vote.setNullVote(false);
+        }
 
         voteRepository.save(vote);
 
@@ -75,14 +82,18 @@ public class VoteService {
         return true;
     }
 
-    private boolean checkNumberCandidates(Long number) {
+    private Long checkNumberCandidates(Long number) {
+        Long id = null;
+        int i;
         try {
             List<CandidateOutput> candidates = candidateClientService.getAll();
             CandidateOutput candidate;
-            for (int i = 0; i < candidates.size(); i++) {
+
+            for (i = 0; i < candidates.size(); i++) {
                 candidate = candidates.get(i);
-                if (candidate.getNumberElection() == number) {
-                    return false;
+                if (candidate.getNumberElection().compareTo(number) == 0) {
+                    id = candidate.getId();
+                    return id;
                 }
             }
         } catch (FeignException e) {
@@ -90,7 +101,7 @@ public class VoteService {
                 throw new GenericOutputException("Invalid candidate");
             }
         }
-        return (true);
+        return (id);
     }
 
     public Election validateInput(Long electionId, VoteInput voteInput) {

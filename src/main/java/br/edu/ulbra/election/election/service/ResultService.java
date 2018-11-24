@@ -35,10 +35,17 @@ public class ResultService {
 
     public ElectionCandidateResultOutput getById(Long candidateId){
         ElectionCandidateResultOutput electionCandidateResultOutput = new ElectionCandidateResultOutput();
-        Long totalVotes;
-        electionCandidateResultOutput.setCandidate(candidateClientService.getById(candidateId));
+        long totalVotes;
+        try {
+            electionCandidateResultOutput.setCandidate(candidateClientService.getById(candidateId));
+        } catch (FeignException e) {
+            if (e.status() == 500) {
+                throw new GenericOutputException("Invalid Candidate");
+            }
+        }
 
-        totalVotes = new Long ((long) voteRepository.findByCandidateId(candidateId).size());
+
+        totalVotes = voteRepository.findByCandidateId(candidateId).size();
         electionCandidateResultOutput.setTotalVotes(totalVotes);
 
         return electionCandidateResultOutput;
