@@ -19,19 +19,14 @@ public class VoteApi {
         this.voteService = voteService;
     }
 
-    @PutMapping("/")
+    @PostMapping("/")
     public GenericOutput electionVote(@RequestBody VoteInput voteInput) {
         return voteService.electionVote(voteInput);
     }
 
-    @PutMapping("/multiple")
+    @PostMapping("/multiple")
     public GenericOutput multipleElectionVote(@RequestBody List<VoteInput> voteInputList) {
         return voteService.multiple(voteInputList);
-    }
-
-    @GetMapping("/number/{electionId}")
-    public Integer getVoteNumberByElectionId(@PathVariable Long electionId) {
-        return voteService.getVoteNumberByElectionId(electionId);
     }
 
     @GetMapping("/{voterId}")

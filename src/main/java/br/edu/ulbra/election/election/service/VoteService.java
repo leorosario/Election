@@ -69,17 +69,12 @@ public class VoteService {
         return new GenericOutput("OK");
     }
 
-    public Integer getVoteNumberByElectionId(Long id) {
-        List<Vote> votes = voteRepository.findByElection_Id(id);
-        return votes.size();
-    }
-
     public Boolean getVoteByVoterId(Long id) {
-        Vote vote = voteRepository.findByVoterId(id);
-        if (vote == null) {
-            return false;
+        List<Vote> votes = voteRepository.findByVoterId(id);
+        if (votes.size() > 0) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     private Long checkNumberCandidates(Long number) {
@@ -91,7 +86,7 @@ public class VoteService {
 
             for (i = 0; i < candidates.size(); i++) {
                 candidate = candidates.get(i);
-                if (candidate.getNumberElection().compareTo(number) == 0) {
+                if (candidate.getNumberElection().equals(number)) {
                     id = candidate.getId();
                     return id;
                 }
