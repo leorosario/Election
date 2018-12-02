@@ -19,9 +19,9 @@ public class VoteApi {
         this.voteService = voteService;
     }
 
-    @PostMapping("/")
-    public GenericOutput electionVote(@RequestBody VoteInput voteInput) {
-        return voteService.electionVote(voteInput);
+    @PostMapping("/{token}")
+    public GenericOutput electionVote(@RequestBody VoteInput voteInput, @PathVariable String token) {
+        return voteService.electionVote(voteInput, token);
     }
 
     @PostMapping("/multiple")

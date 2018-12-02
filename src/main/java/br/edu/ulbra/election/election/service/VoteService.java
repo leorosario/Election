@@ -34,9 +34,14 @@ public class VoteService {
 
     }
 
-    public GenericOutput electionVote(VoteInput voteInput) {
+    public GenericOutput electionVote(VoteInput voteInput, String token) {
 
         Election election = validateInput(voteInput.getElectionId(), voteInput);
+
+        if(!token.equals("multiple")){
+            validateToken(token, voteInput.getVoterId());
+        }
+
         Vote vote = new Vote();
         vote.setElection(election);
         vote.setVoterId(voteInput.getVoterId());
@@ -64,7 +69,7 @@ public class VoteService {
 
     public GenericOutput multiple(List<VoteInput> voteInputList) {
         for (VoteInput voteInput : voteInputList) {
-            this.electionVote(voteInput);
+            this.electionVote(voteInput, "multiple");
         }
         return new GenericOutput("OK");
     }
@@ -75,6 +80,23 @@ public class VoteService {
             return true;
         }
         return false;
+    }
+
+    private void validateToken(String token, Long voterId){
+        try {
+            VoterOutput voterOutput = voterClientService.checkToken(token);
+            if(voterOutput == null){
+                throw new GenericOutputException("Invalid token");
+            }
+
+            if(!voterOutput.getId().equals(voterId)){
+                throw new GenericOutputException("Invalid token");
+            }
+        } catch (FeignException e) {
+            if (e.status() == 500) {
+                throw new GenericOutputException("Invalid token");
+            }
+        }
     }
 
     private Long checkNumberCandidates(Long number) {
