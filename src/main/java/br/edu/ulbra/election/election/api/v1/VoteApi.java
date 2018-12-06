@@ -24,9 +24,9 @@ public class VoteApi {
         return voteService.electionVote(voteInput, token);
     }
 
-    @PostMapping("/multiple")
-    public GenericOutput multipleElectionVote(@RequestBody List<VoteInput> voteInputList) {
-        return voteService.multiple(voteInputList);
+    @PostMapping("/multiple/{token}")
+    public GenericOutput multipleElectionVote(@RequestBody List<VoteInput> voteInputList, @PathVariable String token) {
+        return voteService.multiple(voteInputList, token);
     }
 
     @GetMapping("/{voterId}")

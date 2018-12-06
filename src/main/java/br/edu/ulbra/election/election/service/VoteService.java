@@ -38,9 +38,7 @@ public class VoteService {
 
         Election election = validateInput(voteInput.getElectionId(), voteInput);
 
-        if(!token.equals("multiple")){
-            validateToken(token, voteInput.getVoterId());
-        }
+        validateToken(token, voteInput.getVoterId());
 
         Vote vote = new Vote();
         vote.setElection(election);
@@ -67,9 +65,9 @@ public class VoteService {
         return new GenericOutput("OK");
     }
 
-    public GenericOutput multiple(List<VoteInput> voteInputList) {
+    public GenericOutput multiple(List<VoteInput> voteInputList, String token) {
         for (VoteInput voteInput : voteInputList) {
-            this.electionVote(voteInput, "multiple");
+            this.electionVote(voteInput, token);
         }
         return new GenericOutput("OK");
     }
